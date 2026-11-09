@@ -47,6 +47,7 @@ function renderPanel(panelContent: GeneratedContent = content) {
       <ResultsPanel
         content={panelContent}
         generating={false}
+        regeneratingItems={{}}
         previousContent={null}
         selectedCaptionIndex={0}
         selectedHeadlineIndex={0}
