@@ -22,8 +22,8 @@ import { buildGlobalDna, parseGlobalDnaSources, hashGlobalDnaSources, getGlobalD
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const DIST = path.join(ROOT, 'dist')
-const PORT = Number(process.env.PORT || 8788)
-const HOST = process.env.HOST || '127.0.0.1'
+const HOST = '0.0.0.0';
+const PORT = Number(process.env.PORT || 8788);
 const MAX_BODY_BYTES = 22 * 1024 * 1024 // 20 MiB incoming-image budget + JSON/multipart overhead
 // The app already caps combined uploaded image bytes at 20 MiB.
 const AI_INLINE_IMAGE_MAX_BYTES = IMAGE_TOTAL_MAX_BYTES
