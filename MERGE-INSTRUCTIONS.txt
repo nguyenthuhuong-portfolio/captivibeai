@@ -1,0 +1,19 @@
+CaptiVibe AI — GPT-6 Luna + local mock fallback patch
+
+This archive contains only files changed for the GPT-6 Luna Generate provider, local mock fallback wiring/docs, and the related AI documentation. It is a delta on top of the previous Step 1 optimized patch.
+It does not include PhonePreview.tsx or Header.tsx, so the preview/header edits from your recent work are not overwritten.
+
+How to apply:
+1. Make a backup or commit your current project first.
+2. Extract this archive into your existing CaptiVibe project root and allow the listed files to merge/overwrite.
+3. Run: npm install
+4. Copy .env.example to .env and put your own OpenAI API key in OPENAI_API_KEY. Do not use a VITE_ prefixed variable and do not send the key in chat.
+5. Run: npm run dev
+
+Important:
+- Requires Node.js 22.12+.
+- If .env has no key, the API returns an unavailable response immediately and the frontend uses the existing Local Generator/mock content with a visible fallback notice.
+- Generate makes one OpenAI Responses API request; there is no Gemini call, second model, retry or repair request.
+- New image generations upload the selected image bytes to the OpenAI service through your backend.
+- Do not commit .env.
+- Run npm test and npm run build after npm install.

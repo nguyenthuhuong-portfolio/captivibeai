@@ -1,0 +1,18 @@
+Lỗi đã fix
+
+    Có unit tests cho validation, image processing, storage và generate.
+    Có kiểm tra lỗi localStorage, IndexedDB, dữ liệu history bị hỏng.
+    Có cơ chế chống double-submit và upload chồng.
+    Có ErrorBoundary và thông báo lỗi song ngữ.
+    Có kiểm thử bảo toàn dữ liệu và không xóa Blob còn được history tham chiếu.
+    Build TypeScript sạch.
+
+Cần triển khai tiếp
+
+    *Call AI
+    Chặng	Công việc	Kết quả cần đạt
+    1	Thiết kế AI specification, prompt và schema	Có chuẩn đầu vào/đầu ra
+    2	Tạo backend API, bảo mật key	Gọi được API thật an toàn
+    3	Tích hợp multimodal generation	Tạo 3 captions, 3 headlines, 5 hashtags từ text + ảnh
+    4	Kiểm định output, regenerate và lỗi API	Kết quả ổn định, đúng yêu cầu
+    5	Bộ test chất lượng, benchmark model, polish UI	Có bằng chứng về chất lượng AI

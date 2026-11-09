@@ -1,0 +1,303 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap');
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+/*
+ * CaptiVibe AI — Modern SaaS design tokens.
+ * Semantic tokens only: application surfaces read from these variables, while the
+ * social-platform mockups intentionally hardcode their own palette so a platform
+ * preview never inherits the application theme.
+ */
+@theme {
+  --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+
+  /* Extra-small breakpoint — the 320–400px phone range where the upload grid
+     must drop to two columns so tiles never overflow the panel. */
+  --breakpoint-xs: 400px;
+
+  --color-primary: #4f46e5;
+  --color-primary-hover: #4338ca;
+  --color-on-primary: #ffffff;
+  --color-secondary: #6366f1;
+  --color-on-secondary: #ffffff;
+  --color-accent: #6366f1;
+  --color-on-accent: #ffffff;
+  --color-background: #f8fafc;
+  --color-foreground: #0f172a;
+  --color-card: #ffffff;
+  --color-card-foreground: #0f172a;
+  --color-elevated: #ffffff;
+  --color-muted: #f1f5f9;
+  --color-muted-foreground: #64748b;
+  --color-border: #e2e8f0;
+  --color-destructive: #dc2626;
+  --color-on-destructive: #ffffff;
+  --color-ring: #818cf8;
+
+  --shadow-sm: 0 1px 2px rgb(15 23 42 / 0.05);
+  --shadow-md: 0 1px 2px rgb(15 23 42 / 0.04), 0 8px 24px -16px rgb(15 23 42 / 0.18);
+  --shadow-lg: 0 1px 2px rgb(15 23 42 / 0.05), 0 18px 40px -24px rgb(15 23 42 / 0.28);
+  --shadow-xl: 0 24px 60px -32px rgb(15 23 42 / 0.35);
+}
+
+/* `min-height`, not `height`: below `lg` the document is the app's single scroll container, so
+   these boxes have to be free to grow with the content instead of being pinned to the viewport. */
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+/* The scroll container on a phone is the document itself (see App.tsx), so the scroll padding lives
+   on `html`. It matches the sticky header's real height — `py-2` (16px) + a 40px control + the
+   hairline rule at the smallest size, `py-3` (24px) + a 44px control from `sm` up — plus the notch
+   inset the header itself is padded by, so a focused field or an in-page `#anchor` jump lands
+   directly beneath the bar instead of underneath it. */
+html {
+  scroll-padding-top: calc(3.5625rem + env(safe-area-inset-top, 0px));
+}
+
+@media (min-width: 640px) {
+  html {
+    scroll-padding-top: calc(4.3125rem + env(safe-area-inset-top, 0px));
+  }
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  background: var(--color-background);
+  color: var(--color-foreground);
+  -webkit-font-smoothing: antialiased;
+}
+
+.dark {
+  --color-primary: #818cf8;
+  --color-primary-hover: #a5b4fc;
+  --color-on-primary: #0b1220;
+  --color-secondary: #6366f1;
+  --color-on-secondary: #0b1220;
+  --color-accent: #a5b4fc;
+  --color-on-accent: #0b1220;
+  --color-background: #0b1220;
+  --color-foreground: #f8fafc;
+  --color-card: #111827;
+  --color-card-foreground: #f8fafc;
+  --color-elevated: #172033;
+  --color-muted: #1e293b;
+  --color-muted-foreground: #94a3b8;
+  --color-border: #334155;
+  --color-destructive: #ef4444;
+  --color-on-destructive: #ffffff;
+  --color-ring: #a5b4fc;
+}
+
+/* Single restrained indigo wash instead of the previous blue/orange radial mix. */
+.app-shell {
+  background:
+    radial-gradient(900px 420px at 10% -14%, rgb(79 70 229 / 0.1), transparent 62%),
+    radial-gradient(720px 360px at 100% 0%, rgb(99 102 241 / 0.08), transparent 58%),
+    var(--color-background);
+  /* Edge-to-edge viewports (`viewport-fit=cover`) place the home indicator inside the layout box,
+     so this inset keeps the last row of the page clear of it. It does not exist on a desktop
+     display, so this is a no-op there. The *top* inset is not applied here: the header is
+     `sticky top-0`, which pins to the top of the scrollport rather than to this padded edge, so the
+     inset has to travel with the header itself (see Header.tsx) or the bar would slide up under the
+     notch as soon as the page scrolled. */
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.dark .app-shell {
+  background:
+    radial-gradient(900px 420px at 10% -14%, rgb(129 140 248 / 0.14), transparent 62%),
+    radial-gradient(720px 360px at 100% 0%, rgb(99 102 241 / 0.1), transparent 58%),
+    var(--color-background);
+}
+
+/*
+ * Opaque surfaces — backdrop blur is intentionally avoided: it forces a
+ * full-page repaint on every scroll and tanks FPS on Firefox.
+ */
+.glass {
+  background: var(--color-card);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-md);
+}
+
+.glass-strong {
+  background: var(--color-elevated);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-lg);
+}
+
+/* Slim, unobtrusive scrollbars for the independently scrolling columns. */
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgb(148 163 184 / 0.55) transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgb(148 163 184 / 0.5);
+  border-radius: 9999px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgb(100 116 139 / 0.7);
+}
+
+/* Fully hidden scrollbar — used by the phone screen so only its content scrolls. */
+.scrollbar-width-none,
+.hide-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.scrollbar-width-none::-webkit-scrollbar,
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+/* Multi-select pill badge — flat indigo surface, no gradient. */
+.pill {
+  transition:
+    background-color 200ms ease,
+    border-color 200ms ease,
+    box-shadow 200ms ease,
+    color 200ms ease;
+}
+
+.pill-selected {
+  border-color: transparent;
+  background-color: var(--color-primary);
+  color: var(--color-on-primary);
+  box-shadow:
+    0 0 0 1px rgb(79 70 229 / 0.28),
+    0 8px 18px -12px rgb(79 70 229 / 0.9);
+}
+
+.pill-selected:hover {
+  background-color: var(--color-primary-hover);
+}
+
+@keyframes pill-pop {
+  0% {
+    transform: scale(0.94);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.pill-pop {
+  animation: pill-pop 200ms ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+
+/* Consistent pointer affordance across the application. Disabled controls keep a not-allowed cursor. */
+button:not(:disabled),
+[role="button"]:not([aria-disabled="true"]),
+a[href],
+summary,
+label[for] {
+  cursor: pointer;
+}
+
+button:disabled,
+[aria-disabled="true"] {
+  cursor: not-allowed;
+}
+
+
+/*
+ * Responsive typography for social-device previews. The preview shell is the query container,
+ * so text follows the actual mockup width rather than the browser viewport. This keeps Instagram,
+ * Facebook and TikTok type proportions consistent on narrow phones, large phones and desktop
+ * browsers displaying a mobile handset. Values are calibrated around a 360px-wide device canvas.
+ */
+.preview-fluid-container {
+  container-type: inline-size;
+  container-name: social-preview;
+}
+
+@supports (font-size: 1cqi) {
+  /* Slightly larger calibration: social copy stays readable on real phones without overwhelming
+     the narrower mockups shown inside a desktop workspace. */
+  .preview-fluid-container [class~="text-[8px]"] { font-size: clamp(8px, 2.4cqi, 10px) !important; }
+  .preview-fluid-container [class~="text-[9px]"] { font-size: clamp(8.5px, 2.75cqi, 11px) !important; }
+  .preview-fluid-container [class~="text-[10px]"] { font-size: clamp(9.5px, 3.05cqi, 12px) !important; }
+  .preview-fluid-container [class~="text-[11px]"] { font-size: clamp(10px, 3.35cqi, 13px) !important; }
+  .preview-fluid-container [class~="text-[12px]"],
+  .preview-fluid-container [class~="text-xs"] { font-size: clamp(11px, 3.65cqi, 14.5px) !important; }
+  .preview-fluid-container [class~="text-[13px]"] { font-size: clamp(11.5px, 3.95cqi, 15.5px) !important; }
+  .preview-fluid-container [class~="text-[15px]"] { font-size: clamp(13px, 4.5cqi, 18px) !important; }
+  .preview-fluid-container [class~="text-sm"] { font-size: clamp(12.5px, 4.2cqi, 17px) !important; }
+  .preview-fluid-container [class~="text-lg"] { font-size: clamp(15px, 5.3cqi, 22px) !important; }
+  .preview-fluid-container [class~="text-2xl"] { font-size: clamp(19px, 7cqi, 30px) !important; }
+}
+
+/* Fallback for older Safari versions that do not implement container query units. */
+@supports not (font-size: 1cqi) {
+  @media (max-width: 360px) {
+    .preview-fluid-container [class~="text-sm"] { font-size: 14px !important; }
+    .preview-fluid-container [class~="text-xs"],
+    .preview-fluid-container [class~="text-[12px]"] { font-size: 12px !important; }
+  }
+}
+
+/*
+ * Readability pass for the PC preview viewed fullscreen on a real phone.
+ * The phone-specific desktop canvas is shorter than the desktop reference canvas, so its outer
+ * scale is larger. These scoped overrides make text and controls take advantage of that space
+ * while trimming excess desktop padding. They never affect normal PC previews or mobile feeds.
+ */
+.phone-desktop-readable [class~="text-[10px]"] { font-size: 12px !important; }
+.phone-desktop-readable [class~="text-[11px]"] { font-size: 13px !important; }
+.phone-desktop-readable [class~="text-[12px]"] { font-size: 14px !important; }
+.phone-desktop-readable [class~="text-[13px]"] { font-size: 15px !important; }
+.phone-desktop-readable [class~="text-[15px]"] { font-size: 17px !important; }
+.phone-desktop-readable [class~="text-xs"] { font-size: 14px !important; }
+.phone-desktop-readable [class~="text-sm"] { font-size: 16px !important; }
+.phone-desktop-readable [class~="text-base"] { font-size: 18px !important; }
+.phone-desktop-readable [class~="text-lg"] { font-size: 20px !important; }
+
+.phone-desktop-readable [class~="size-2.5"] { width: 12px !important; height: 12px !important; }
+.phone-desktop-readable [class~="size-3"] { width: 15px !important; height: 15px !important; }
+.phone-desktop-readable [class~="size-3.5"] { width: 17px !important; height: 17px !important; }
+.phone-desktop-readable [class~="size-4"] { width: 19px !important; height: 19px !important; }
+.phone-desktop-readable [class~="size-5"] { width: 23px !important; height: 23px !important; }
+.phone-desktop-readable [class~="size-6"] { width: 28px !important; height: 28px !important; }
+
+.phone-desktop-readable [class~="p-10"] { padding: 24px !important; }
+.phone-desktop-readable [class~="p-6"] { padding: 16px !important; }
+.phone-desktop-readable [class~="p-5"] { padding: 14px !important; }
+.phone-desktop-readable [class~="p-4"] { padding: 12px !important; }
+.phone-desktop-readable [class~="px-5"] { padding-inline: 14px !important; }
+.phone-desktop-readable [class~="px-4"] { padding-inline: 12px !important; }
+.phone-desktop-readable [class~="py-4"] { padding-block: 9px !important; }
+.phone-desktop-readable [class~="py-3"] { padding-block: 8px !important; }
+.phone-desktop-readable [class~="gap-4"] { gap: 12px !important; }
+.phone-desktop-readable [class~="gap-3"] { gap: 8px !important; }
+.phone-desktop-readable [class~="mt-4"] { margin-top: 9px !important; }

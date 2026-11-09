@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <!--
+      `viewport-fit=cover` is required for the `env(safe-area-inset-*)` values the shell (bottom)
+      and the sticky header (top) consume; without it those insets always resolve to 0.
+      `interactive-widget=resizes-content` lets the on-screen keyboard resize the layout on
+      Chrome-for-Android instead of overlaying the form. Both are progressive.
+    -->
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content"
+    />
+    <meta
+      name="description"
+      content="CaptiVibe AI — generate captions, headlines, and hashtags for product marketing."
+    />
+    <title>CaptiVibe AI — Caption & Marketing Content Generator</title>
+    <script>
+      try {
+        const stored = localStorage.getItem('captivibe.theme')
+        const theme =
+          stored === 'light' || stored === 'dark'
+            ? stored
+            : window.matchMedia('(prefers-color-scheme: dark)').matches
+              ? 'dark'
+              : 'light'
+        document.documentElement.classList.toggle('dark', theme === 'dark')
+      } catch (e) {}
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

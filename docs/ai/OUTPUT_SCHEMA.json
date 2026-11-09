@@ -1,0 +1,322 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://captivibe.local/schemas/ai-generation-response.json",
+  "title": "CaptiVibe AI generation response",
+  "description": "The complete, self-scored content set returned by the CaptiVibe backend for one brief. Exactly three captions, three headlines and five hashtags. The server validates each GPT response with Zod before it reaches the frontend; invalid output is discarded and the app uses its clearly-labelled Local Generator fallback. The schema mirrors docs/ai/AI_SPECIFICATION.md and docs/ai/PROMPTS.md. The same file also defines the two single-item regeneration response shapes in $defs, which the server selects by request mode; they are not referenced by this root schema.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "captions",
+    "headlines",
+    "hashtags",
+    "image_insights"
+  ],
+  "properties": {
+    "captions": {
+      "type": "array",
+      "description": "Exactly three caption drafts: benefit (short), storytelling (medium), and problem_solution (long). The adapter sorts by `strategy` before mapping them onto caption cards 1-3.",
+      "minItems": 3,
+      "maxItems": 3,
+      "items": {
+        "$ref": "#/$defs/captionItem"
+      },
+      "allOf": [
+        {
+          "contains": {
+            "properties": {
+              "strategy": {
+                "const": "benefit"
+              }
+            },
+            "required": [
+              "strategy"
+            ]
+          },
+          "minContains": 1,
+          "maxContains": 1
+        },
+        {
+          "contains": {
+            "properties": {
+              "strategy": {
+                "const": "storytelling"
+              }
+            },
+            "required": [
+              "strategy"
+            ]
+          },
+          "minContains": 1,
+          "maxContains": 1
+        },
+        {
+          "contains": {
+            "properties": {
+              "strategy": {
+                "const": "problem_solution"
+              }
+            },
+            "required": [
+              "strategy"
+            ]
+          },
+          "minContains": 1,
+          "maxContains": 1
+        }
+      ]
+    },
+    "headlines": {
+      "type": "array",
+      "description": "Exactly three headline drafts, one per strategy, in the fixed order direct_benefit -> curiosity -> emotional. The order is not trusted; the adapter sorts by `strategy` before mapping onto hook cards 1-3.",
+      "minItems": 3,
+      "maxItems": 3,
+      "items": {
+        "$ref": "#/$defs/headlineItem"
+      },
+      "allOf": [
+        {
+          "contains": {
+            "properties": {
+              "strategy": {
+                "const": "direct_benefit"
+              }
+            },
+            "required": [
+              "strategy"
+            ]
+          },
+          "minContains": 1,
+          "maxContains": 1
+        },
+        {
+          "contains": {
+            "properties": {
+              "strategy": {
+                "const": "curiosity"
+              }
+            },
+            "required": [
+              "strategy"
+            ]
+          },
+          "minContains": 1,
+          "maxContains": 1
+        },
+        {
+          "contains": {
+            "properties": {
+              "strategy": {
+                "const": "emotional"
+              }
+            },
+            "required": [
+              "strategy"
+            ]
+          },
+          "minContains": 1,
+          "maxContains": 1
+        }
+      ]
+    },
+    "hashtags": {
+      "type": "array",
+      "description": "Exactly five hashtags, each beginning with '#'. A balanced mix of brand/product, category, supported feature, audience and usage context. Hashtags carry no individual score or feedback. Semantic checks the schema cannot express (no near-duplicates, no misleading tags) are enforced in the Zod layer described in docs/ai/AI_SPECIFICATION.md section 5.",
+      "minItems": 5,
+      "maxItems": 5,
+      "items": {
+        "type": "string",
+        "description": "A single hashtag including its leading '#', with no inner whitespace and no second '#'.",
+        "minLength": 2,
+        "maxLength": 40,
+        "pattern": "^#[^\\s#]+$"
+      }
+    },
+    "image_insights": {
+      "type": "array",
+      "description": "Up to three short observations grounded in the visible evidence of the uploaded images. An EMPTY ARRAY is required when no images were supplied, or when nothing in them can be described without guessing. Must never contain a product specification, material, certification, performance claim or benefit that is not stated in the user's own text.",
+      "minItems": 0,
+      "maxItems": 3,
+      "items": {
+        "type": "string",
+        "description": "One observation of at most 160 characters, describing what is visibly present.",
+        "minLength": 1,
+        "maxLength": 160
+      }
+    }
+  },
+  "$defs": {
+    "captionItem": {
+      "title": "One scored caption",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "strategy",
+        "text",
+        "score",
+        "feedback"
+      ],
+      "properties": {
+        "strategy": {
+          "type": "string",
+          "description": "Stable identifier of the caption approach and length role: benefit=short, storytelling=medium, problem_solution=long. The actual ideas and structures must also differ.",
+          "enum": [
+            "benefit",
+            "storytelling",
+            "problem_solution"
+          ]
+        },
+        "text": {
+          "type": "string",
+          "description": "The finished plain-text caption, ready to paste; preserve readable paragraph and benefit-line breaks with newline characters. Length role is determined by strategy (short, medium or long): target about 35–55 words for short, 70–110 for medium, and 120–180 for long when the brief supports that depth. These are flexible targets, not quotas; the active platform ceiling takes priority. Use context-relevant emojis as visual signposts when helpful, never as decoration or a forced count. Non-empty after trimming. Written in the requested output language, in the requested tone, and inside the active platform's character ceiling, counted in Unicode code points after NFC normalisation. It must contain no customer testimonial, no first-person experience of using the product, no review, rating or social proof, no scarcity or urgency, and no claim the seller's own text does not support. A violation of those rules is a factual-gate failure in docs/ai/AI_SPECIFICATION.md section 5.4, not a point deducted from the score.",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "score": {
+          "type": "integer",
+          "description": "The AI's own quality verdict for THIS caption under the scoring guidance in docs/ai/PROMPTS.md section 7. An assessment of the copy, not a prediction of engagement, reach, sales or virality. An item carrying a claim the seller's text does not support is capped at 40 by those anchors, and the response it belongs to is rejected rather than displayed.",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "feedback": {
+          "type": "string",
+          "description": "One concrete strength or weakness, at most 120 characters. Names what would improve the copy; never a generic compliment and never a scoring breakdown.",
+          "minLength": 1,
+          "maxLength": 120
+        }
+      }
+    },
+    "headlineItem": {
+      "title": "One scored headline",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "strategy",
+        "text",
+        "score",
+        "feedback"
+      ],
+      "properties": {
+        "strategy": {
+          "type": "string",
+          "description": "Stable identifier of the hook approach. Always one of the three allowed values; this value is what guarantees the three hooks differ from each other.",
+          "enum": [
+            "direct_benefit",
+            "curiosity",
+            "emotional"
+          ]
+        },
+        "text": {
+          "type": "string",
+          "description": "The finished headline, ready to paste. Non-empty after trimming. Short enough to read as a hook. The same factual rules as a caption apply: no testimonial, no first-person experience, no fabricated review or social proof, no scarcity, and no claim the seller's own text does not support — see docs/ai/AI_SPECIFICATION.md section 5.4.",
+          "minLength": 1,
+          "maxLength": 300
+        },
+        "score": {
+          "type": "integer",
+          "description": "The AI's own quality verdict for THIS headline under the scoring guidance in docs/ai/PROMPTS.md section 7. An assessment of the copy, not a prediction of engagement, reach, sales or virality. A headline carrying a claim the seller's text does not support is capped at 40 by those anchors, and the response it belongs to is rejected rather than displayed.",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "feedback": {
+          "type": "string",
+          "description": "One concrete strength or weakness, at most 120 characters. Never a generic compliment and never a scoring breakdown.",
+          "minLength": 1,
+          "maxLength": 120
+        }
+      }
+    },
+    "captionRegenerationResponse": {
+      "title": "CaptiVibe AI caption regeneration response",
+      "description": "The answer to a single-item regeneration whose request had target.kind = \"caption\". Exactly one scored caption, plus the discriminator. It is NOT a full set: a response that returns three captions, or that returns a headline, fails this shape rather than being interpreted. The server additionally pins itemType and caption.strategy to the values it requested, using const where the value is known at request time; see docs/ai/AI_SPECIFICATION.md section 3.2 and docs/ai/PROMPTS.md section 6.2.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "itemType",
+        "caption"
+      ],
+      "properties": {
+        "itemType": {
+          "type": "string",
+          "const": "caption",
+          "description": "Discriminator. Always \"caption\", and always equal to the requested target.kind."
+        },
+        "caption": {
+          "$ref": "#/$defs/captionItem"
+        }
+      }
+    },
+    "headlineRegenerationResponse": {
+      "title": "CaptiVibe AI headline regeneration response",
+      "description": "The answer to a single-item regeneration whose request had target.kind = \"headline\". Exactly one scored headline, plus the discriminator. A response carrying a \"caption\" key as well is invalid, because additionalProperties is false. The server pins itemType and headline.strategy to the requested values; see docs/ai/AI_SPECIFICATION.md section 3.2 and docs/ai/PROMPTS.md section 6.2.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "itemType",
+        "headline"
+      ],
+      "properties": {
+        "itemType": {
+          "type": "string",
+          "const": "headline",
+          "description": "Discriminator. Always \"headline\", and always equal to the requested target.kind."
+        },
+        "headline": {
+          "$ref": "#/$defs/headlineItem"
+        }
+      }
+    }
+  },
+  "$comment": "The example below is the answer to the request filled in docs/ai/PROMPTS.md section 4 — brief 'Aurora Glow Serum' / 'A lightweight vitamin C serum that brightens tired skin in 7 days.', tone professional, output language vi, no images, platform instagram. It is also benchmark case B-01. It is written to satisfy every rule in docs/ai/PROMPTS.md section 3 and the factual gate in docs/ai/AI_SPECIFICATION.md section 5.4, and it is deliberately a test case: there is no testimonial, no review, no first-person experience of using the serum, no social proof, no scarcity, no discount and no health or performance claim. Every product statement restates the seller's own sentence, and '7 ngày' appears only because the seller wrote it. image_insights is [] because no image was attached — the example does not describe a picture it never saw. If you change this example, it must keep all of those properties, or the document is teaching the wrong thing.",
+  "examples": [
+    {
+      "captions": [
+        {
+          "strategy": "benefit",
+          "text": "Serum vitamin C kết cấu nhẹ, hướng đến làn da sáng hơn trong 7 ngày.",
+          "score": 83,
+          "feedback": "Lợi ích bám sát mô tả của người bán; nên nói rõ hơn về kết cấu dạng nhẹ."
+        },
+        {
+          "strategy": "storytelling",
+          "text": "Có những ngày làn da trông thiếu sức sống? Serum vitamin C với kết cấu nhẹ là một lựa chọn để cân nhắc trong routine chăm sóc da. Theo thông tin bạn cung cấp, sản phẩm hướng đến làn da sáng hơn trong 7 ngày.",
+          "score": 76,
+          "feedback": "Mở đầu gợi được tình huống; phần sau còn chung chung nên gắn chặt hơn với sản phẩm."
+        },
+        {
+          "strategy": "problem_solution",
+          "text": "Khi làn da trông thiếu sức sống, bạn có thể tìm một bước chăm sóc tập trung vào nhu cầu làm sáng. Serum vitamin C này có kết cấu nhẹ, phù hợp để cân nhắc trong routine chăm sóc da. Theo thông tin bạn cung cấp, sản phẩm hướng đến làn da sáng hơn trong 7 ngày. Nếu muốn khách hàng hiểu rõ hơn, bạn có thể bổ sung thêm thông tin về cách dùng hoặc thành phần trong phần mô tả sản phẩm.",
+          "score": 79,
+          "feedback": "Nêu đúng vấn đề và vai trò của sản phẩm; tránh hứa hẹn kết quả ngoài mô tả."
+        }
+      ],
+      "headlines": [
+        {
+          "strategy": "direct_benefit",
+          "text": "Serum vitamin C cho làn da sáng hơn trong 7 ngày",
+          "score": 84,
+          "feedback": "Ngắn và đúng lợi ích trong mô tả; có thể nêu rõ đối tượng khách hàng."
+        },
+        {
+          "strategy": "curiosity",
+          "text": "Bước serum vitamin C này có gì khác trong routine của bạn?",
+          "score": 74,
+          "feedback": "Gợi tò mò nhưng còn chung; nên bám vào chi tiết dạng nhẹ."
+        },
+        {
+          "strategy": "emotional",
+          "text": "Làn da sáng hơn bắt đầu từ một bước chăm sóc mỗi ngày",
+          "score": 72,
+          "feedback": "Cảm xúc ổn nhưng còn xa sản phẩm; cần gắn với vitamin C."
+        }
+      ],
+      "hashtags": [
+        "#AuroraGlowSerum",
+        "#SerumVitaminC",
+        "#ChamSocDa",
+        "#RoutineDuongDa",
+        "#DuongDaHangNgay"
+      ],
+      "image_insights": []
+    }
+  ]
+}
